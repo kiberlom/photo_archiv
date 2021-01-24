@@ -7,8 +7,9 @@ import (
 )
 
 type SettingF struct {
-	HomeDir string `json:"home_dir"`
-	NewDir  string `json:"new_dir"`
+	HomeDir   string `json:"home_dir"`
+	NewDir    string `json:"new_dir"`
+	VideoCopy bool   `json:"video_copy"`
 }
 
 // читаем настройки

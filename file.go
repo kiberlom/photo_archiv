@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/rwcarlsen/goexif/exif"
 	"io"
 	"log"
 	"os"
@@ -54,7 +55,13 @@ func checkOriginal(path, name string, org os.FileInfo) (bool, bool, error) {
 }
 
 // копирование файла (новый путь новое имя, оригинал файла)
-func copyFile(path, nameNew string, org *os.File) error {
+func copyFile(path, nameNew string, p string) error {
+
+	original, err := os.Open(p)
+	if err != nil {
+		log.Fatalf("open: %v", err)
+	}
+	defer original.Close()
 
 	new, err := os.Create(filepath.Join(path, nameNew))
 	if err != nil {
@@ -62,7 +69,7 @@ func copyFile(path, nameNew string, org *os.File) error {
 	}
 	defer new.Close()
 
-	_, err = io.Copy(new, org)
+	_, err = io.Copy(new, original)
 	if err != nil {
 		return err
 	}
@@ -146,6 +153,28 @@ func PathCreate(y, m int, f string) (p string, is bool) {
 
 }
 
+// получить данные exif
+func getDate(f *os.File) (y, m int, err error) {
+
+	y, m = 0, 0
+	err = nil
+
+	x, err := exif.Decode(f)
+	if err != nil {
+		return
+	}
+
+	d, err := x.DateTime()
+	if err != nil {
+		return
+	}
+
+	y, m = d.Year(), int(d.Month())
+
+	return
+
+}
+
 // инфо о файле
 func fileTE(p string) {
 
@@ -163,17 +192,30 @@ func fileTE(p string) {
 	// полное имя оригинала
 	nameFile := stat.Name()
 
+	y, m := 0, 0
+	// получаем год и месяц создания exif
+	y, m, err = getDate(original)
+	if err != nil {
+		// месяц
+		m = int(stat.ModTime().Month())
+
+		// год
+		y = stat.ModTime().Year()
+
+		log.Println("НЕ УДАЛОСЬ ОПРЕДЕЛИТЬ ДАТУ exif: ", nameFile)
+	}
+
 	// получаем имя и расширение
 	nm, exp := parseNameFile(nameFile)
 
-	// месяц
-	m := int(stat.ModTime().Month())
-
-	// год
-	y := stat.ModTime().Year()
-
 	// формат файла
 	ff := formatFile(exp)
+
+	// проверка можно ли копировать видео
+	if !settingRoot.VideoCopy && ff == VIDEO {
+		fmt.Println(fmt.Sprintf("%s ВИДЕО копировать запрещено", p))
+		return
+	}
 
 	// новый путь для файла
 	pathNew, _ := PathCreate(y, m, ff)
@@ -205,7 +247,9 @@ func fileTE(p string) {
 		break
 	}
 
-	err = copyFile(pathNew, nameFile, original)
+	original.Close()
+
+	err = copyFile(pathNew, nameFile, p)
 	if err != nil {
 		s := fmt.Sprintf("ОШИБКА КОПИРОВАНИЯ: %s ====> %s", p, filepath.Join(pathNew, nameFile))
 		fmt.Println(s)
