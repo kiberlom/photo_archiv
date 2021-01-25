@@ -1,5 +1,8 @@
 {
-  "home_dir": "D:/Foto",
+  "home_dir": "D:/Denis",
   "new_dir": "E:/Foto_New",
-  "video_copy": false
+  "video_copy": false,
+  "photo_copy": false,
+  "unknown_copy": false
+
 }
