@@ -22,7 +22,7 @@ func check(e string) int {
 		}
 	}
 
-	return NOT_FOUND
+	return UNKNOWN
 }
 
 func GetType(fileName string) (int, string) {
@@ -37,7 +37,7 @@ func GetType(fileName string) (int, string) {
 	case PHOTO:
 		return PHOTO, "фото"
 	default:
-		return NOT_FOUND, "не определенно"
+		return UNKNOWN, "не определенно"
 
 	}
 

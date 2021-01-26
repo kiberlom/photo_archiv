@@ -1,9 +1,9 @@
 package checktype
 
 const (
-	VIDEO     = 1
-	PHOTO     = 2
-	NOT_FOUND = 3
+	VIDEO   = 1
+	PHOTO   = 2
+	UNKNOWN = 3
 )
 
 var formatVideo = []string{

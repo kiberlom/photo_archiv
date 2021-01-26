@@ -1,4 +1,4 @@
-package main
+package setting
 
 import (
 	"encoding/json"
@@ -7,13 +7,15 @@ import (
 )
 
 type SettingF struct {
-	HomeDir   string `json:"home_dir"`
-	NewDir    string `json:"new_dir"`
-	VideoCopy bool   `json:"video_copy"`
+	HomeDir     string `json:"home_dir"`
+	NewDir      string `json:"new_dir"`
+	VideoCopy   bool   `json:"video_copy"`
+	ImgCopy     bool   `json:"photo_copy"`
+	UnknownCopy bool   `json:"unknown_copy"`
 }
 
 // читаем настройки
-func setting() *SettingF {
+func GetSetting() *SettingF {
 
 	sFile, err := os.Open("setting.json")
 	if err != nil {

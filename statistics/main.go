@@ -1,11 +1,13 @@
 package statistics
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"math"
 	"os"
 	"path"
+	"path/filepath"
 	"photo_archiv/checktype"
 )
 
@@ -32,13 +34,20 @@ func sizeMb(s int64) float64 {
 // получаем данные о файле
 func fileInfo(p string) {
 
-	original, err := os.Open(p)
-	if err != nil {
-		log.Fatalf("open: %v", err)
-	}
-	defer original.Close()
+	// получение инфо файл с открытием (дорого)
+	//original, err := os.Open(p)
+	//if err != nil {
+	//	log.Fatalf("open: %v", err)
+	//}
+	//defer original.Close()
+	//
+	//stat, err := original.Stat()
+	//if err != nil {
+	//	log.Fatalf("stat: %v", err)
+	//}
 
-	stat, err := original.Stat()
+	// получение инфо файл без открытия
+	stat, err := os.Lstat(p)
 	if err != nil {
 		log.Fatalf("stat: %v", err)
 	}
@@ -61,15 +70,71 @@ func fileInfo(p string) {
 
 // общая статистика
 type StatisticsFull struct {
-	GeneralSize float64
-	FileCount   int64
-	VideoCount  int64
-	VideoSize   float64
-	ImgCount    int64
-	ImgSize     float64
+	GeneralSize  float64
+	FileCount    int64
+	VideoCount   int64
+	VideoSize    float64
+	ImgCount     int64
+	ImgSize      float64
+	UnknownCount int64
+	UnknownSize  float64
 }
 
-func getStatistic() {
+// размер директории
+func DirSize(path string) (int64, error) {
+
+	var size int64
+	err := filepath.Walk(path, func(_ string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() {
+			size += info.Size()
+		}
+		return err
+	})
+	return size, err
+}
+
+// анализ всех найденных файлов в слайсе
+func GetStatistic(fls []FileOne, p string) {
+
+	st := StatisticsFull{}
+	sd, _ := DirSize(p)
+
+	for _, v := range fls {
+
+		st.GeneralSize = st.GeneralSize + v.Size
+		st.FileCount++
+
+		switch v.TypeInt {
+		case checktype.VIDEO:
+			st.VideoCount++
+			st.VideoSize = st.VideoSize + v.Size
+		case checktype.PHOTO:
+			st.ImgCount++
+			st.ImgSize = st.ImgSize + v.Size
+		case checktype.UNKNOWN:
+			st.UnknownCount++
+			st.UnknownSize = st.UnknownSize + v.Size
+		}
+
+	}
+	fmt.Printf("\nРазмер директории: %.2f", sizeMb(sd))
+	fmt.Printf(`
+Всего файлов: %d        ошбий размер:  %.2f Мб 
+Видео файлов: %d        общий размер:  %.2f Мб 
+Фото: %d                общий размер:  %.2f Мб
+Неизвестных файлов: %d  общий размер:  %.2f Мб 
+
+`,
+
+		st.FileCount, st.GeneralSize,
+		st.VideoCount, st.VideoSize,
+		st.ImgCount, st.ImgSize,
+		st.UnknownCount, st.UnknownSize)
+
+	fmt.Println("Анализ завершен!!!")
 
 }
 

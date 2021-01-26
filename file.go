@@ -135,7 +135,7 @@ func formatFile(exp string) string {
 func PathCreate(y, m int, f string) (p string, is bool) {
 
 	// новый путь
-	p = filepath.Join(settingRoot.NewDir, strconv.Itoa(y), getMonthRus(m), f)
+	p = filepath.Join(SettingRoot.NewDir, strconv.Itoa(y), getMonthRus(m), f)
 	is = true
 
 	// если каталог уже есть
@@ -212,7 +212,7 @@ func fileTE(p string) {
 	ff := formatFile(exp)
 
 	// проверка можно ли копировать видео
-	if !settingRoot.VideoCopy && ff == VIDEO {
+	if !SettingRoot.VideoCopy && ff == VIDEO {
 		fmt.Println(fmt.Sprintf("%s ВИДЕО копировать запрещено", p))
 		return
 	}
