@@ -11,13 +11,13 @@ func parseNameFile(n string) (string, string) {
 // получаем тип
 func check(e string) int {
 	for _, f := range formatPhoto {
-		if e == f {
+		if e == strings.ToLower(f) {
 			return PHOTO
 		}
 	}
 
 	for _, f := range formatVideo {
-		if e == f {
+		if e == strings.ToLower(f) {
 			return VIDEO
 		}
 	}

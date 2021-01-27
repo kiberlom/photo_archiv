@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"photo_archiv/copyfile"
 	"photo_archiv/setting"
 	"photo_archiv/statistics"
@@ -13,17 +14,35 @@ var SettingRoot *setting.SettingF
 // перебираем файлы
 func osn(fl []statistics.FileOne) {
 
-	ol := len(fl)
-	nl := 0
+	// считаем проценты исходя из количества обработанных файлов
+	ol := float64(len(fl))
+	nl := float64(0)
 
 	for _, f := range fl {
 
 		copyfile.Start(f, SettingRoot)
 		nl++
 
-		g := float64(nl) * 100 / float64(ol)
+		// высчитываем проценты
+		g := nl * 100 / ol
 
-		fmt.Printf("%.2f%%", g)
+		fmt.Printf("%.2f%%  ", g)
+
+	}
+
+}
+
+// чтобы посмотрать статистику сначала
+func startCopy() {
+
+	fmt.Print("Введите (Y) чтобы начать копировать: ")
+
+	var a string
+	fmt.Scan(&a)
+
+	if a != "Y" {
+		fmt.Println("Работа завершена ")
+		os.Exit(0)
 
 	}
 
@@ -39,6 +58,8 @@ func main() {
 	f := statistics.GetFileList(SettingRoot.HomeDir)
 	// получаем общую статистику
 	statistics.GetStatistic(f, SettingRoot.HomeDir)
+
+	startCopy()
 
 	osn(f)
 

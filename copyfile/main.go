@@ -214,6 +214,22 @@ func Start(fl statistics.FileOne, s *setting.SettingF) {
 		return
 	}
 
-	fmt.Printf("%+v\n", f)
+	cop, _ := f.createNewFileName()
+	if !cop {
+		fmt.Printf("%s  дубликат\n", f.Path)
+		return
+	}
+
+	f.Open.Close()
+
+	// НАЧИНАЕМ КОПИРОВАТЬ
+	fmt.Printf("%s ====> %s", f.Path, filepath.Join(f.PathNew, f.NameNew))
+
+	if err := f.copyFile(); err != nil {
+		fmt.Printf("Ошибка копирования файла: %v \n", err)
+		return
+	}
+
+	fmt.Println("  СКОПИРОВАНН")
 
 }
