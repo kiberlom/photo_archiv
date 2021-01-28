@@ -6,6 +6,8 @@
 {
   "home_dir": "путь к каталогу фото архива",
   "new_dir": "новый каталог", 
-  "video_copy": false // копировать видео или нет (false || true)
+  "video_copy": false, // копировать видео или нет (false || true)
+  "photo_copy": false, // копировать изображение или нет (false || true)
+  "unknown_copy": false // копировать неизветные форматы или нет (false || true)
 }
 ```
